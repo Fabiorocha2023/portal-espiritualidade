@@ -1,0 +1,212 @@
+javascript// supabaseClient.js
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL
+const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY
+
+export const supabase = createClient(supabaseUrl, supabaseKey)
+
+export async function loginUser(email, password) {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    if (error) throw error
+    return { success: true, user: data.user, session: data.session }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function registerUser(email, password) {
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    })
+    if (error) throw error
+    return { success: true, user: data.user }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function logoutUser() {
+  try {
+    const { error } = await supabase.auth.signOut()
+    if (error) throw error
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getCurrentUser() {
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error) throw error
+    return user
+  } catch (error) {
+    return null
+  }
+}
+
+export async function getArticles() {
+  try {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('*')
+      .order('created_date', { ascending: false })
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error('Erro ao buscar artigos:', error)
+    return []
+  }
+}
+
+export async function getArticleById(id) {
+  try {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('*')
+      .eq('id', id)
+      .single()
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error('Erro ao buscar artigo:', error)
+    return null
+  }
+}
+
+export async function getPractices() {
+  try {
+    const { data, error } = await supabase
+      .from('practices')
+      .select('*')
+      .order('created_date', { ascending: false })
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error('Erro ao buscar práticas:', error)
+    return []
+  }
+}
+
+export async function getPracticeById(id) {
+  try {
+    const { data, error } = await supabase
+      .from('practices')
+      .select('*')
+      .eq('id', id)
+      .single()
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error('Erro ao buscar prática:', error)
+    return null
+  }
+}
+
+export async function getChallenges() {
+  try {
+    const { data, error } = await supabase
+      .from('challenges')
+      .select('*')
+      .order('created_date', { ascending: false })
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error('Erro ao buscar desafios:', error)
+    return []
+  }
+}
+
+export async function getChallengeById(id) {
+  try {
+    const { data, error } = await supabase
+      .from('challenges')
+      .select('*')
+      .eq('id', id)
+      .single()
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error('Erro ao buscar desafio:', error)
+    return null
+  }
+}
+
+export async function getDiaryEntries(userId) {
+  try {
+    const { data, error } = await supabase
+      .from('diary_entries')
+      .select('*')
+      .eq('created_by_id', userId)
+      .order('data', { ascending: false })
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error('Erro ao buscar entradas de diário:', error)
+    return []
+  }
+}
+
+export async function createDiaryEntry(entry) {
+  try {
+    const { data, error } = await supabase
+      .from('diary_entries')
+      .insert([entry])
+      .select()
+    if (error) throw error
+    return { success: true, data: data[0] }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getUserProgress(userId, challengeId) {
+  try {
+    const { data, error } = await supabase
+      .from('user_progress')
+      .select('*')
+      .eq('created_by_id', userId)
+      .eq('challenge_id', challengeId)
+      .single()
+    if (error) throw error
+    return data
+  } catch (error) {
+    return null
+  }
+}
+
+export async function updateUserProgress(id, updates) {
+  try {
+    const { data, error } = await supabase
+      .from('user_progress')
+      .update(updates)
+      .eq('id', id)
+      .select()
+    if (error) throw error
+    return { success: true, data: data[0] }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function createUserProgress(progress) {
+  try {
+    const { data, error } = await supabase
+      .from('user_progress')
+      .insert([progress])
+      .select()
+    if (error) throw error
+    return { success: true, data: data[0] }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+export default supabase
